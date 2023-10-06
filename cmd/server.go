@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hellofresh/janus/pkg/api"
-	"github.com/hellofresh/janus/pkg/server"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/hellofresh/janus/pkg/api"
+	"github.com/hellofresh/janus/pkg/server"
 
 	// this is needed to call the init function on each plugin
 	_ "github.com/hellofresh/janus/pkg/plugin/basic"
@@ -18,9 +19,11 @@ import (
 	_ "github.com/hellofresh/janus/pkg/plugin/oauth2"
 	_ "github.com/hellofresh/janus/pkg/plugin/organization"
 	_ "github.com/hellofresh/janus/pkg/plugin/rate"
+	_ "github.com/hellofresh/janus/pkg/plugin/rbac"
 	_ "github.com/hellofresh/janus/pkg/plugin/requesttransformer"
 	_ "github.com/hellofresh/janus/pkg/plugin/responsetransformer"
 	_ "github.com/hellofresh/janus/pkg/plugin/retry"
+	_ "github.com/hellofresh/janus/pkg/plugin/tokenchecker"
 
 	// dynamically registered auth providers
 	_ "github.com/hellofresh/janus/pkg/jwt/basic"

@@ -4,14 +4,15 @@ import (
 	"os"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/hellofresh/janus/pkg/db"
+	"github.com/hellofresh/janus/pkg/kafka"
 )
 
 type Config struct {
-	KafkaAddr          string `yaml:"kafkaAddr"`
-	KafkaFactTopic     string `yaml:"kafkaFactTopic"`
-	KafkaDLQTopic      string `yaml:"kafkaDLQTopic"`
-	KafkaConsumerGroup string `yaml:"kafkaConsumerGroup"`
-	RBACUrl            string `yaml:"RBACUrl"`
+	DBUserManagement *db.Config    `yaml:"dbUserManagement"`
+	DBRbac           *db.Config    `yaml:"dbRbac"`
+	KafkaConfig      *kafka.Config `yaml:"kafkaConfig"`
 }
 
 func UnmarshalYAML(path string, dest *Config) error {
