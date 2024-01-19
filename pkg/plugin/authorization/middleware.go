@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptrace"
 	"strings"
 
 	"github.com/hellofresh/janus/pkg/errors"
@@ -169,6 +170,12 @@ func NewTokenCatcherMiddleware(manager *TokenManager) func(http.Handler) http.Ha
 				manager.UpsertTokens(tokens)
 
 				render.JSON(w, http.StatusOK, http.NoBody)
+
+				r = r.WithContext(httptrace.WithClientTrace(r.Context(), &httptrace.ClientTrace{
+					GotFirstResponseByte: func() {
+						r.Close = true
+					},
+				}))
 				return
 
 			case fmt.Sprintf("/%s/gatewayTokens/delete", manager.Conf.ApiVersion):
@@ -186,6 +193,12 @@ func NewTokenCatcherMiddleware(manager *TokenManager) func(http.Handler) http.Ha
 				manager.DeleteTokensByIDs(ids)
 
 				render.JSON(w, http.StatusOK, http.NoBody)
+
+				r = r.WithContext(httptrace.WithClientTrace(r.Context(), &httptrace.ClientTrace{
+					GotFirstResponseByte: func() {
+						r.Close = true
+					},
+				}))
 				return
 
 			default:
@@ -215,6 +228,12 @@ func NewRoleCatcherMiddleware(manager *RoleManager) func(http.Handler) http.Hand
 				manager.UpsertRoles(roles)
 
 				render.JSON(w, http.StatusOK, http.NoBody)
+
+				r = r.WithContext(httptrace.WithClientTrace(r.Context(), &httptrace.ClientTrace{
+					GotFirstResponseByte: func() {
+						r.Close = true
+					},
+				}))
 				return
 
 			case fmt.Sprintf("/%s/gatewayRoles/delete", manager.Conf.ApiVersion):
@@ -232,6 +251,12 @@ func NewRoleCatcherMiddleware(manager *RoleManager) func(http.Handler) http.Hand
 				manager.DeleteRolesByIDs(ids)
 
 				render.JSON(w, http.StatusOK, http.NoBody)
+
+				r = r.WithContext(httptrace.WithClientTrace(r.Context(), &httptrace.ClientTrace{
+					GotFirstResponseByte: func() {
+						r.Close = true
+					},
+				}))
 				return
 
 			default:

@@ -27,21 +27,21 @@ func setupAuthorization(def *proxy.RouterDefinition, _ plugin.Config) error {
 	tokenManager := NewTokenManager(&conf)
 	roleManager := NewRoleManager(&conf)
 
-	err = tokenManager.FetchTokens()
-	if err != nil {
-		return err
-	}
-	err = roleManager.FetchRoles()
-	if err != nil {
-		return err
-	}
+	//err = tokenManager.FetchTokens()
+	//if err != nil {
+	//	return err
+	//}
+	//err = roleManager.FetchRoles()
+	//if err != nil {
+	//	return err
+	//}
 
 	// Catch middleware needs to be first, if it successfully catches – it will interrupt http request.
 	def.AddMiddleware(NewTokenCatcherMiddleware(tokenManager))
 	def.AddMiddleware(NewRoleCatcherMiddleware(roleManager))
 
 	def.AddMiddleware(NewTokenCheckerMiddleware(tokenManager))
-	def.AddMiddleware(NewRoleCheckerMiddleware(roleManager))
+	//def.AddMiddleware(NewRoleCheckerMiddleware(roleManager))
 
 	return nil
 }

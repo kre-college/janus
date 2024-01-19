@@ -1,6 +1,9 @@
 package middleware
 
-import "net/http"
+import (
+	"net/http"
+	"runtime/debug"
+)
 
 // NewRecovery creates a new instance of Recovery
 func NewRecovery(recoverFunc func(w http.ResponseWriter, r *http.Request, err interface{})) func(http.Handler) http.Handler {
@@ -8,6 +11,7 @@ func NewRecovery(recoverFunc func(w http.ResponseWriter, r *http.Request, err in
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				if err := recover(); err != nil {
+					debug.PrintStack()
 					recoverFunc(w, r, err)
 				}
 			}()
