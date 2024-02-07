@@ -37,6 +37,20 @@ func NewRoleManager(conf *config.Config) *RoleManager {
 	}
 }
 
+func (rm *RoleManager) FetchRolesWithRetry(retryAttempts int, retryTimeout time.Duration) error {
+	for i := 0; i < retryAttempts; i++ {
+		err := rm.FetchRoles()
+		if err != nil || len(rm.Roles) == 0 {
+			t := time.NewTimer(retryTimeout)
+			<-t.C
+			continue
+		}
+		return nil
+	}
+
+	return fmt.Errorf("unable to fetch roles after %d attempts", retryAttempts)
+}
+
 func (rm *RoleManager) FetchRoles() error {
 	url := fmt.Sprintf("%s/%s/roles", rm.Conf.RbacURL, rm.Conf.ApiVersion)
 
