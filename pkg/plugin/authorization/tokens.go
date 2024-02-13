@@ -19,15 +19,29 @@ type JWTToken struct {
 
 type TokenManager struct {
 	Tokens map[string]*Claims
-	Conf   *config.Config
+	Conf   *config.Authorization
 	sync.RWMutex
 }
 
-func NewTokenManager(conf *config.Config) *TokenManager {
+func NewTokenManager(conf *config.Authorization) *TokenManager {
 	return &TokenManager{
 		Tokens: map[string]*Claims{},
 		Conf:   conf,
 	}
+}
+
+func (tm *TokenManager) FetchTokensWithRetry(retryAttempts int, retryTimeout time.Duration) error {
+	for i := 0; i < retryAttempts; i++ {
+		err := tm.FetchTokens()
+		if err != nil {
+			t := time.NewTimer(retryTimeout)
+			<-t.C
+			continue
+		}
+		return nil
+	}
+
+	return fmt.Errorf("unable to fetch tokens after %d attempts", retryAttempts)
 }
 
 func (tm *TokenManager) FetchTokens() error {
@@ -111,7 +125,7 @@ func (tm *TokenManager) deleteTokenAfterExpiration(token string) {
 	}
 
 	expiresAt := time.Unix(claims.ExpiresAt, 0)
-	duration := expiresAt.Sub(time.Now())
+	duration := time.Until(expiresAt)
 
 	timer := time.NewTimer(duration)
 	<-timer.C

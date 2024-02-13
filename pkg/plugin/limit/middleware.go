@@ -1,7 +1,6 @@
 package authorization
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/hellofresh/janus/pkg/errors"
@@ -10,7 +9,6 @@ import (
 func NewSizeLimitMiddleware(maxSizeInMB float64) func(http.Handler) http.Handler {
 	return func(handler http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			fmt.Println(r.ContentLength, isRequestFitsInLimit(r, maxSizeInMB))
 			if !isRequestFitsInLimit(r, maxSizeInMB) {
 				errors.Handler(w, r, ErrRequestTooLarge)
 				return
