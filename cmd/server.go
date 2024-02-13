@@ -17,6 +17,7 @@ import (
 	_ "github.com/hellofresh/janus/pkg/plugin/cb"
 	_ "github.com/hellofresh/janus/pkg/plugin/compression"
 	_ "github.com/hellofresh/janus/pkg/plugin/cors"
+	_ "github.com/hellofresh/janus/pkg/plugin/limit"
 	_ "github.com/hellofresh/janus/pkg/plugin/oauth2"
 	_ "github.com/hellofresh/janus/pkg/plugin/organization"
 	_ "github.com/hellofresh/janus/pkg/plugin/rate"

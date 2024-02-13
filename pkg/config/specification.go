@@ -20,6 +20,8 @@ type Specification struct {
 	ConnPurgeInterval    time.Duration `envconfig:"CONN_PURGE_INTERVAL"`
 	RequestID            bool          `envconfig:"REQUEST_ID_ENABLED"`
 	Log                  logging.LogConfig
+	Authorization        Authorization
+	Limit                Limit
 	Web                  Web
 	Database             Database
 	Stats                Stats
@@ -39,6 +41,18 @@ type RespondingTimeouts struct {
 	ReadTimeout  time.Duration `envconfig:"RESPONDING_TIMEOUTS_READ_TIMEOUT"`
 	WriteTimeout time.Duration `envconfig:"RESPONDING_TIMEOUTS_WRITE_TIMEOUT"`
 	IdleTimeout  time.Duration `envconfig:"RESPONDING_TIMEOUTS_IDLE_TIMEOUT"`
+}
+
+// Authorization represents the default config for Authorization plugin
+type Authorization struct {
+	ApiVersion        string
+	RbacURL           string
+	UserManagementURL string
+}
+
+// Limit represents the default config for Limit plugin
+type Limit struct {
+	DefaultMaxRequestSizeInMB float64
 }
 
 // Web represents the API configurations
