@@ -26,11 +26,11 @@ type Feature struct {
 
 type RoleManager struct {
 	Roles map[string]*Role
-	Conf  *config.Config
+	Conf  *config.Authorization
 	sync.Mutex
 }
 
-func NewRoleManager(conf *config.Config) *RoleManager {
+func NewRoleManager(conf *config.Authorization) *RoleManager {
 	return &RoleManager{
 		Roles: map[string]*Role{},
 		Conf:  conf,
