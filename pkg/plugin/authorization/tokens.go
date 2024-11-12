@@ -20,12 +20,12 @@ type JWTToken struct {
 type TokenManager struct {
 	Tokens map[string]*Claims
 	Conf   *config.Authorization
-	sync.RWMutex
+	mu     sync.RWMutex
 }
 
 func NewTokenManager(conf *config.Authorization) *TokenManager {
 	return &TokenManager{
-		Tokens: map[string]*Claims{},
+		Tokens: make(map[string]*Claims),
 		Conf:   conf,
 	}
 }
@@ -54,7 +54,7 @@ func (tm *TokenManager) FetchTokens() error {
 		return err
 	}
 
-	tokensSlice := []*JWTToken{}
+	tokensSlice := make([]*JWTToken, 0)
 	err = json.Unmarshal(body, &tokensSlice)
 	if err != nil {
 		return err
@@ -71,7 +71,7 @@ func (tm *TokenManager) FetchTokens() error {
 }
 
 func tokenSliceToStringClaimsMap(tokensSlice []*JWTToken) (map[string]*Claims, error) {
-	tokensMap := map[string]*Claims{}
+	tokensMap := make(map[string]*Claims)
 
 	for _, token := range tokensSlice {
 		claims, err := ExtractClaims(token.Token)
@@ -90,9 +90,6 @@ func (tm *TokenManager) UpsertToken(token string) error {
 		return err
 	}
 
-	tm.Lock()
-	defer tm.Unlock()
-
 	tm.Tokens[token] = claims
 
 	go tm.deleteTokenAfterExpiration(token)
@@ -101,15 +98,15 @@ func (tm *TokenManager) UpsertToken(token string) error {
 }
 
 func (tm *TokenManager) DeleteToken(token string) {
-	tm.Lock()
-	defer tm.Unlock()
+	tm.mu.Lock()
+	defer tm.mu.Unlock()
 
 	delete(tm.Tokens, token)
 }
 
 func (tm *TokenManager) isTokenValid(accessToken string) bool {
-	tm.RLock()
-	defer tm.RUnlock()
+	tm.mu.RLock()
+	defer tm.mu.RUnlock()
 
 	if _, exists := tm.Tokens[accessToken]; exists {
 		return true

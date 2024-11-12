@@ -66,6 +66,8 @@ func NewLoginTokenCatcherMiddleware(manager *TokenManager) func(http.Handler) ht
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			rcw := &responseCatcherWriter{ResponseWriter: w}
 
+			tm.mu.RLock()
+			defer tm.mu.RUnlock()
 			handler.ServeHTTP(rcw, r)
 
 			if rcw.status != http.StatusOK {
@@ -122,7 +124,7 @@ func NewRoleCheckerMiddleware(manager *RoleManager) func(http.Handler) http.Hand
 				return
 			}
 
-			if !isHaveAccess(manager.Roles, claims.Roles, r.URL.Path, r.Method) {
+			if !isHaveAccess(manager.Roles, claims.Roles.GetRoles(), r.URL.Path, r.Method) {
 				errors.Handler(w, r, ErrAccessIsDenied)
 				return
 			}
