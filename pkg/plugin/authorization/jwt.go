@@ -10,10 +10,28 @@ import (
 )
 
 type Claims struct {
-	UserID       uint64
-	FullUserName string
+	UserID               uint64               `json:"UserID"`
+	FullUserName         string               `json:"FullUserName"`
+	Roles                RolesToID            `json:"Roles"`
+	CurrentInstitutionID uint64               `json:"CurrentInstitutionID"`
+	InstitutionIDToRoles map[uint64]RolesToID `json:"InstitutionIDToRoles"`
 	jwt.StandardClaims
-	Roles []string
+}
+
+type RoleToID struct {
+	Role string  `json:"role"`
+	ID   *uint64 `json:"id"`
+}
+
+type RolesToID []*RoleToID
+
+func (rti RolesToID) GetRoles() []string {
+	roles := make([]string, len(rti))
+	for i, r := range rti {
+		roles[i] = r.Role
+	}
+
+	return roles
 }
 
 func ExtractClaims(jwtToken string) (*Claims, error) {
