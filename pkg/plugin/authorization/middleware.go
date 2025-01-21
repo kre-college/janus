@@ -8,7 +8,11 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"bytes"
+	"compress/gzip"
+	"fmt"
 	"github.com/hellofresh/janus/pkg/errors"
+	"io"
 )
 
 const (
@@ -74,10 +78,42 @@ func NewLoginTokenCatcherMiddleware(manager *TokenManager) func(http.Handler) ht
 				return
 			}
 
-			var accessToken string
-			_ = json.Unmarshal(rcw.body, &accessToken)
+			var body []byte
+			encoding := rcw.Header().Get("Content-Encoding")
+			if strings.Contains(encoding, "gzip") {
+				gzr, err := gzip.NewReader(bytes.NewReader(rcw.body))
+				if err != nil {
+					fmt.Println("error creating gzip reader")
+					fmt.Println(err)
+					return
+				}
+				defer gzr.Close()
 
-			_ = manager.UpsertToken(accessToken)
+				unzippedBody, err := io.ReadAll(gzr)
+				if err != nil {
+					fmt.Println("error reading unzipped body")
+					fmt.Println(err)
+					return
+				}
+				body = unzippedBody
+			} else {
+				body = rcw.body
+			}
+
+			var accessToken string
+			err := json.Unmarshal(body, &accessToken)
+			if err != nil {
+				fmt.Println("error unmarshalling access token")
+				fmt.Println(err)
+				return
+			}
+
+			err = manager.UpsertToken(accessToken)
+			if err != nil {
+				fmt.Println("error upserting access token")
+				fmt.Println(err)
+				return
+			}
 		})
 	}
 }
