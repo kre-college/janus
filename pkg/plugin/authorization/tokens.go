@@ -12,6 +12,7 @@ import (
 
 type JWTToken struct {
 	ID             uint64    `json:"id"`
+	InstitutionID  uint64    `json:"institution_id" db:"institution_id"`
 	UserID         uint64    `json:"user_id"`
 	Token          string    `json:"token"`
 	ExpirationDate time.Time `json:"expiration_date"`
