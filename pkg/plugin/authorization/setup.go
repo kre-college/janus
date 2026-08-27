@@ -1,6 +1,7 @@
 package authorization
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/hellofresh/janus/pkg/plugin"
@@ -16,6 +17,7 @@ const (
 	endpointTypeField = "endpoint_type"
 	loginType         = "login"
 	logoutType        = "logout"
+	refreshType       = "refresh"
 
 	retryAttempts = 20
 	retryTimeout  = 3 * time.Second
@@ -58,6 +60,12 @@ func setupAuthorization(def *proxy.RouterDefinition, cfg plugin.Config) error {
 			def.AddMiddleware(NewLoginTokenCatcherMiddleware(tm))
 		case logoutType:
 			def.AddMiddleware(NewLogoutTokenCatcherMiddleware(tm))
+		case refreshType:
+			def.AddMiddleware(NewTokenCheckerMiddleware(tm))
+			def.AddMiddleware(NewLogoutTokenCatcherMiddleware(tm))
+			def.AddMiddleware(NewLoginTokenCatcherMiddleware(tm))
+		default:
+			return fmt.Errorf("unknown %s: %q", endpointTypeField, endpointType)
 		}
 		return nil
 	}

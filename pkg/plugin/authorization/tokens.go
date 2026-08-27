@@ -65,7 +65,9 @@ func (tm *TokenManager) FetchTokens() error {
 		return err
 	}
 
+	tm.mu.Lock()
 	tm.Tokens = tokensMap
+	tm.mu.Unlock()
 
 	return nil
 }
@@ -90,9 +92,11 @@ func (tm *TokenManager) UpsertToken(token string) error {
 		return err
 	}
 
+	tm.mu.Lock()
 	tm.Tokens[token] = claims
+	tm.mu.Unlock()
 
-	go tm.deleteTokenAfterExpiration(token)
+	go tm.deleteTokenAfterExpiration(token, claims)
 
 	return nil
 }
@@ -115,12 +119,7 @@ func (tm *TokenManager) isTokenValid(accessToken string) bool {
 	return false
 }
 
-func (tm *TokenManager) deleteTokenAfterExpiration(token string) {
-	claims, exists := tm.Tokens[token]
-	if !exists {
-		return
-	}
-
+func (tm *TokenManager) deleteTokenAfterExpiration(token string, claims *Claims) {
 	expiresAt := time.Unix(claims.ExpiresAt, 0)
 	duration := time.Until(expiresAt)
 
