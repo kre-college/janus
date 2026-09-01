@@ -9,11 +9,15 @@ type responseCatcherWriter struct {
 }
 
 func (rcw *responseCatcherWriter) Write(b []byte) (int, error) {
-	rcw.body = b
+	rcw.body = append(rcw.body, b...)
 	return rcw.ResponseWriter.Write(b)
 }
 
 func (rcw *responseCatcherWriter) WriteHeader(statusCode int) {
 	rcw.status = statusCode
 	rcw.ResponseWriter.WriteHeader(statusCode)
+}
+
+func (rcw *responseCatcherWriter) isOK() bool {
+	return rcw.status == 0 || rcw.status == http.StatusOK
 }
